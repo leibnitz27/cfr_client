@@ -60,8 +60,8 @@ public class WithTokenSink {
                 System.out.println("CFR wants to sink " + sinkType + ", and I can choose:");
                 collection.forEach(System.out::println);
                 if (sinkType == SinkType.JAVA && collection.contains(SinkClass.TOKEN_STREAM)) {
-                    // If it's JAVA (reconstructed code), and I'm offered DECOMPILED
-                    // (which has sinkClass SinkReturns.Decompiled), I'd prefer that.
+                    // If it's JAVA (reconstructed code), and I'm offered TOKEN_STREAM
+                    // (which has sinkClass SinkReturns.Token), I'd prefer that.
                     return Arrays.asList(SinkClass.TOKEN_STREAM, SinkClass.STRING);
                 } else {
                     // For anything other than this, I will only sink STRING
