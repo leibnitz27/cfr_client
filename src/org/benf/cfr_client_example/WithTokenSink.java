@@ -7,7 +7,9 @@ import org.benf.cfr.reader.api.SinkReturns;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WithTokenSink {
 
@@ -18,6 +20,8 @@ public class WithTokenSink {
 
         private boolean pendingIndent;
         private int indentLevel = 0;
+        private Map<Object, Integer> idents = new IdentityHashMap<>();
+
 
         @Override
         public void write(SinkReturns.Token t) {
@@ -34,8 +38,14 @@ public class WithTokenSink {
                     break;
                 case IDENTIFIER:
                     if (pendingIndent) flushIndent();
+                    Object rawValue = t.getRawValue();
+                    if (rawValue == null) {
+                        throw new IllegalStateException();
+                    }
+                    int ident = idents.computeIfAbsent(rawValue, ignore -> idents.size());
                     boolean defines = t.getFlags().contains(SinkReturns.TokenTypeFlags.DEFINES);
-                    System.out.print("/* IDENT " + (defines?"Defined":"") + " */ " + t.getText());
+                    // Obviously, this generates bad code, but it's here to demo!
+                    System.out.print((defines?"(+":"(") + ident + ")" +  t.getText());
                     break;
                 default:
                     // control token that's not handled?  Ignore.
@@ -79,6 +89,6 @@ public class WithTokenSink {
         };
 
         var driver = new CfrDriver.Builder().withOutputSink(mySink).build();
-        driver.analyse(Collections.singletonList("target/classes/org/benf/cfr_client_example/decompile_me/SpyStuff.class"));
+        driver.analyse(Collections.singletonList("target/classes/org/benf/cfr_client_example/WithTokenSink.class"));
     }
 }
